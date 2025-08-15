@@ -1,8 +1,8 @@
 use crate::low_level::{
     close_fd, fanotify_init, fanotify_mark, fanotify_read, FanotifyEventMetadata, AT_FDCWD,
     FAN_ALLOW, FAN_CLASS_CONTENT, FAN_CLASS_NOTIF, FAN_CLASS_PRE_CONTENT, FAN_CLOEXEC, FAN_DENY,
-    FAN_MARK_ADD, FAN_MARK_FLUSH, FAN_MARK_MOUNT, FAN_MARK_REMOVE, FAN_NONBLOCK, O_CLOEXEC,
-    O_RDONLY,
+    FAN_MARK_ADD, FAN_MARK_FILESYSTEM, FAN_MARK_FLUSH, FAN_MARK_MOUNT, FAN_MARK_REMOVE,
+    FAN_NONBLOCK, O_CLOEXEC, O_RDONLY,
 };
 use crate::FanotifyPath;
 use enum_iterator::{all, Sequence};
@@ -172,6 +172,11 @@ impl Fanotify {
 
     pub fn add_path<P: ?Sized + FanotifyPath>(&self, mode: u64, path: &P) -> Result<(), Error> {
         fanotify_mark(self.fd, FAN_MARK_ADD, mode, AT_FDCWD, path)?;
+        Ok(())
+    }
+
+    pub fn add_filesystem<P: ?Sized + FanotifyPath>(&self, mode: u64, path: &P) -> Result<(), Error> {
+        fanotify_mark(self.fd, FAN_MARK_ADD | FAN_MARK_FILESYSTEM, mode, AT_FDCWD, path)?;
         Ok(())
     }
 
